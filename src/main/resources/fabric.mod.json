@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "id": "enhancedkeybinds",
+  "version": "${version}",
+  "name": "Enhanced Keybinds",
+  "description": "Assign modifier keys to a keybind, and other vanilla-friendly additions",
+  "authors": [
+    "CoolAid48"
+  ],
+  "contributors": [
+    "Original mod icons by pandalexi12 and Taupestar"
+  ],
+  "contact": {
+    "homepage": "https://coolaid.live/",
+    "issues": "https://github.com/CoolAid48/EnhancedKeybinds/issues",
+    "sources": "https://github.com/CoolAid48/EnhancedKeybinds"
+  },
+  "license": "MIT",
+  "icon": "assets/enhancedkeybinds/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "coolaid.enhancedkeybinds.EnhancedKeybinds"
+    ]
+  },
+  "mixins": [
+    "enhancedkeybinds.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.17.3",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.donate" : "https://ko-fi.com/coolaid48",
+        "modmenu.discord": "https://discord.gg/J2SGshKNah",
+        "modmenu.modrinth": "https://modrinth.com/mod/enhanced-keybinds"
+      }
+    }
+  }
+}
