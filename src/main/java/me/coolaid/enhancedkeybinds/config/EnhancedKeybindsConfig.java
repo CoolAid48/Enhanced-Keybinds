@@ -48,7 +48,8 @@ public final class EnhancedKeybindsConfig {
     }
 
     public static class Data {
-        public boolean test1 = true;
-        public boolean test2 = true;
+        public boolean registerControlsKeybinds = true;
+        public boolean registerSkinLayerKeybinds = true;
+        public boolean includeIndividualSkinLayers = false;
     }
 }
