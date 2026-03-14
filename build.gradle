@@ -18,6 +18,14 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
+
+    maven { url = "https://maven.terraformersmc.com/releases" }
+    maven { url = "https://maven.isxander.dev/releases" }
+
+    maven {
+        url "https://maven.siphalor.de/"
+        name "Siphalor's Maven"
+    }
 }
 
 dependencies {
@@ -27,6 +35,13 @@ dependencies {
 
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modImplementation("de.siphalor.amecs.amecs-key-modifiers:amecs-key-modifiers-mc1.21.9:1.0.0") {
+        exclude group: "de.siphalor.amecs", module: "amecs-api-legacy-dummy"
+    }
+
+    modImplementation "dev.isxander:yet-another-config-lib:3.8.1+1.21.11-fabric"
+    modCompileOnly "com.terraformersmc:modmenu:17.0.0-beta.2"
 }
 
 processResources {

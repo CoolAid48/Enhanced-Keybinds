@@ -8,7 +8,9 @@
     "CoolAid48"
   ],
   "contributors": [
-    "Original mod icons by pandalexi12 and Taupestar"
+    "pandalexi12 (Mod icon)",
+    "Siphalor (Amecs implementation)",
+    "Taupestar (Original mod icon)"
   ],
   "contact": {
     "homepage": "https://coolaid.live/",
@@ -20,16 +22,19 @@
   "environment": "client",
   "entrypoints": {
     "client": [
-      "coolaid.enhancedkeybinds.EnhancedKeybinds"
+      "me.coolaid.enhancedkeybinds.EnhancedKeybinds"
+    ],
+    "modmenu": [
+      "me.coolaid.enhancedkeybinds.compat.ModMenu"
     ]
   },
   "mixins": [
     "enhancedkeybinds.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.17.3",
-    "fabric-api": "*",
-    "minecraft": "~${minecraft_version}"
+    "minecraft": "~${minecraft_version}",
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*"
   },
   "custom": {
     "modmenu": {
