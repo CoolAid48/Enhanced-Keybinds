@@ -5,23 +5,22 @@ import me.coolaid.enhancedkeybinds.keybindings.BasicSkinLayerTogglesBinds;
 import me.coolaid.enhancedkeybinds.keybindings.ControlsTogglesBinds;
 import me.coolaid.enhancedkeybinds.keybindings.IndividualSkinLayerTogglesBinds;
 import net.fabricmc.api.ClientModInitializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class EnhancedKeybinds implements ClientModInitializer {
+
+    public static final String MOD_ID = "Enhanced Keybinds";
+    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     @Override
     public void onInitializeClient() {
         EnhancedKeybindsConfig.load();
+        ControlsTogglesBinds.init();
+        BasicSkinLayerTogglesBinds.init();
+        IndividualSkinLayerTogglesBinds.init();
 
-        if (EnhancedKeybindsConfig.data().registerControlsKeybinds) {
-            ControlsTogglesBinds.init();
-        }
-
-        if (EnhancedKeybindsConfig.data().registerSkinLayerKeybinds) {
-            BasicSkinLayerTogglesBinds.init();
-
-            if (EnhancedKeybindsConfig.data().includeIndividualSkinLayers) {
-                IndividualSkinLayerTogglesBinds.init();
-            }
-        }
+        LOGGER.info("The Keybinds are Enhancing... Check out my Hardcore World on Twitch");
+        LOGGER.info("Thank you Siphalor for the Amecs key modifiers implementation!");
     }
 }

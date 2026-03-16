@@ -36,10 +36,7 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modImplementation("de.siphalor.amecs.amecs-key-modifiers:amecs-key-modifiers-mc1.21.9:1.0.0") {
-        exclude group: "de.siphalor.amecs", module: "amecs-api-legacy-dummy"
-    }
-
+    modImplementation("de.siphalor.amecs.amecs-key-modifiers:amecs-key-modifiers-mc1.21.9:1.0.1")
     modImplementation "dev.isxander:yet-another-config-lib:3.8.1+1.21.11-fabric"
     modCompileOnly "com.terraformersmc:modmenu:17.0.0-beta.2"
 }

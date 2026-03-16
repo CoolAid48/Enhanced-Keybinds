@@ -1,10 +1,18 @@
 # CoolAid's Enhanced Keybinds
-![](https://img.shields.io/badge/Loader-Fabric-blue?style=for-the-badge)
-![](https://img.shields.io/badge/Supports_MC_Versions-1.21.5_--_1.21.8-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Loader-Fabric/Quilt-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Supports_MC_Versions-1.21.5_--_1.21.8_|_1.21.11-blue?style=for-the-badge)
 ![](https://img.shields.io/badge/Environments-Client-blue?style=for-the-badge)
 
-<details>
-<summary>Old Mod Description (>1.21.9)</summary>
+### Assign modifier keys to a keybind, and other vanilla-friendly additions!
+## This mod features:
+- **Modifier Keys (Ctrl, Alt, Shift, Win) which can be combined with other keys for more keybind options, thanks to [Siphalor's Amecs](https://github.com/Siphalor/amecs/tree/cross-version/amecs-key-modifiers) key modifier implementation**
+- **New Vanilla Keybinds from various in-game options menus!**
+- **Functions completely client-side, with ModMenu and YACL config integration**
+- **All keybinds are enabled and `unbound` by default, and this mod's new keybinds can be enabled or disabled entirely in the config (restart required)**
+
+#### Any bugs or issues, please make a report on [GitHub](https://github.com/CoolAid48/Enhanced-Keybinds/issues)
+
+<details><summary>Old Mod Description (<3.0.0)</summary>
 
 **Enhanced Keybinds allows you to assign a modifier key (alt, ctrl, shift, win) + another key on the keyboard to any vanilla keybind! This mod is a fork of MisterCheezeCake's [Amecs Reborn](https://modrinth.com/mod/amecs-reborn)**
 

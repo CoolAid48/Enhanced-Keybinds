@@ -1,8 +1,10 @@
 package me.coolaid.enhancedkeybinds.keybindings;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import me.coolaid.enhancedkeybinds.config.EnhancedKeybindsConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
@@ -17,8 +19,12 @@ public final class BasicSkinLayerTogglesBinds {
     }
 
     public static void init() {
-        toggleAllSkinLayers = register("key.enhancedkeybinds.toggle_all");
-        toggleOffhand = register("key.enhancedkeybinds.swap_offhand");
+        if (EnhancedKeybindsConfig.data().registerToggleAllSkinLayersKeybind) {
+            toggleAllSkinLayers = register("key.enhancedkeybinds.toggle_all");
+        }
+        if (EnhancedKeybindsConfig.data().registerSwapMainHandKeybind) {
+            toggleOffhand = register("key.enhancedkeybinds.swap_offhand");
+        }
         ClientTickEvents.END_CLIENT_TICK.register(BasicSkinLayerTogglesBinds::handle);
     }
 
@@ -27,16 +33,23 @@ public final class BasicSkinLayerTogglesBinds {
             return;
         }
 
-        while (toggleAllSkinLayers.consumeClick()) {
+        while (toggleAllSkinLayers != null && toggleAllSkinLayers.consumeClick()) {
             toggleAllSkinLayers(client);
         }
 
-        while (toggleOffhand.consumeClick()) {
+        while (toggleOffhand != null && toggleOffhand.consumeClick()) {
             HumanoidArm newArm = client.options.mainHand().get() == HumanoidArm.RIGHT ? HumanoidArm.LEFT : HumanoidArm.RIGHT;
             client.options.mainHand().set(newArm);
             client.player.setMainArm(newArm);
             client.options.save();
-            client.player.displayClientMessage(Component.translatable(newArm == HumanoidArm.RIGHT ? "message.main-hand.enabled" : "message.main-hand.disabled"), true);
+            client.player.displayClientMessage(
+                    Component.translatable(
+                            "enhancedkeybinds.actionbar.main_hand",
+                            Component.translatable(newArm == HumanoidArm.RIGHT ? "enhancedkeybinds.actionbar.component.right" : "enhancedkeybinds.actionbar.component.left")
+                                    .withStyle(ChatFormatting.GREEN)
+                    ),
+                    true
+            );
         }
     }
 
@@ -53,10 +66,18 @@ public final class BasicSkinLayerTogglesBinds {
             client.options.setModelPart(part, anyDisabled);
         }
 
-        client.player.displayClientMessage(Component.translatable(anyDisabled ? "message.skin-layers.enabled" : "message.skin-layers.disabled"), true);
+        client.player.displayClientMessage(
+                Component.translatable(
+                        "enhancedkeybinds.actionbar.component.toggled",
+                        Component.translatable("enhancedkeybinds.actionbar.skin-layers"),
+                        Component.translatable(anyDisabled ? "enhancedkeybinds.actionbar.component.enabled" : "enhancedkeybinds.actionbar.component.disabled")
+                                .withStyle(anyDisabled ? ChatFormatting.GREEN : ChatFormatting.RED)
+                ),
+                true
+        );
     }
 
     private static KeyMapping register(String translationKey) {
-        return KeyBindingHelper.registerKeyBinding(new KeyMapping(translationKey, InputConstants.UNKNOWN.getValue(), RegisterCategories.SKIN_LAYERS));
+        return KeyBindingHelper.registerKeyBinding(new KeyMapping(translationKey, InputConstants.UNKNOWN.getValue(), RegisterCategories.SKIN_CUSTOMIZATION));
     }
 }

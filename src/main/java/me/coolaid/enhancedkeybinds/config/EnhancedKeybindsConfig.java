@@ -48,8 +48,20 @@ public final class EnhancedKeybindsConfig {
     }
 
     public static class Data {
-        public boolean registerControlsKeybinds = true;
-        public boolean registerSkinLayerKeybinds = true;
-        public boolean includeIndividualSkinLayers = false;
+        // Controls
+        public boolean registerAutoJumpKeybind = true;
+        public boolean registerSneakModeKeybind = true;
+        public boolean registerSprintModeKeybind = true;
+        public boolean registerClosedCaptionsKeybind = true;
+        // Skin Customization
+        public boolean registerSwapMainHandKeybind = true;
+        public boolean registerToggleAllSkinLayersKeybind = true;
+        public boolean registerToggleCapeKeybind = true;
+        public boolean registerToggleHatKeybind = true;
+        public boolean registerToggleJacketKeybind = true;
+        public boolean registerToggleLeftSleeveKeybind = true;
+        public boolean registerToggleRightSleeveKeybind = true;
+        public boolean registerToggleLeftPantsKeybind = true;
+        public boolean registerToggleRightPantsKeybind = true;
     }
 }

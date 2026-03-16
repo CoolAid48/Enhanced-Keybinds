@@ -8,8 +8,8 @@ public final class RegisterCategories {
             Identifier.fromNamespaceAndPath("enhancedkeybinds", "controls")
     );
 
-    public static final KeyMapping.Category SKIN_LAYERS = KeyMapping.Category.register(
-            Identifier.fromNamespaceAndPath("enhancedkeybinds", "skin_layers")
+    public static final KeyMapping.Category SKIN_CUSTOMIZATION = KeyMapping.Category.register(
+            Identifier.fromNamespaceAndPath("enhancedkeybinds", "skin_customization")
     );
 
     private RegisterCategories() {
