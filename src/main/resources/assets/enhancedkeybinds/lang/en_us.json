@@ -47,12 +47,12 @@
   "enhancedkeybinds.config.option.register_toggle_right_pants_keybind": "Toggle Right Leg Keybind",
   "enhancedkeybinds.config.option.register_toggle_right_pants_keybind.description": "If enabled, the Toggle Right Leg keybind is registered in Enhanced Keybinds Skin Customization.",
 
-  "enhancedkeybinds.actionbar.main_hand": "Main Hand set to %s",
-  "enhancedkeybinds.actionbar.sneaking_mode": "Sneaking mode set to %s",
-  "enhancedkeybinds.actionbar.sprinting_mode": "Sprinting mode set to %s",
-  "enhancedkeybinds.actionbar.closed-captions": "Closed Captions",
-  "enhancedkeybinds.actionbar.auto-jump": "Auto-Jump",
-  "enhancedkeybinds.actionbar.skin-layers": "All Skin Layers",
+  "enhancedkeybinds.actionbar.main_hand": "Main Hand set to: %s",
+  "enhancedkeybinds.actionbar.sneaking_mode": "Sneaking mode set to: %s",
+  "enhancedkeybinds.actionbar.sprinting_mode": "Sprinting mode set to: %s",
+  "enhancedkeybinds.actionbar.closed-captions": "Closed Captions:",
+  "enhancedkeybinds.actionbar.auto-jump": "Auto-Jump:",
+  "enhancedkeybinds.actionbar.skin-layers": "All Skin Layers:",
 
   "enhancedkeybinds.actionbar.component.toggled": "%s %s",
   "enhancedkeybinds.actionbar.component.left": "Left",

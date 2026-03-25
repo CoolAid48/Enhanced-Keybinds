@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -31,14 +31,15 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
 
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
+    implementation "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
 
-    modImplementation("de.siphalor.amecs.amecs-key-modifiers:amecs-key-modifiers-mc1.21.9:1.0.1")
-    modImplementation "dev.isxander:yet-another-config-lib:3.8.1+1.21.11-fabric"
-    modCompileOnly "com.terraformersmc:modmenu:17.0.0-beta.2"
+
+    include("de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}")
 }
 
 processResources {
@@ -54,7 +55,7 @@ processResources {
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly
