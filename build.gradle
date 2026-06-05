@@ -28,6 +28,22 @@ repositories {
     }
 }
 
+loom {
+    runs {
+        client {
+            vmArg "--enable-native-access=ALL-UNNAMED"
+            vmArg "--sun-misc-unsafe-memory-access=allow"
+            property "joml.nounsafe", "true"
+        }
+    }
+}
+
+tasks.withType(JavaExec).configureEach {
+    jvmArgs "--enable-native-access=ALL-UNNAMED"
+    jvmArgs "--sun-misc-unsafe-memory-access=allow"
+    systemProperty "joml.nounsafe", "true"
+}
+
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"

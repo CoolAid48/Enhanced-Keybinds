@@ -1,9 +1,16 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "coolaid.enhancedkeybinds.mixin",
+  "package": "me.coolaid.enhancedkeybinds.mixin",
+  "plugin": "me.coolaid.enhancedkeybinds.mixin.EnhancedKeybindsMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "client": [
+    "controlling.ControllingKeyBindsScreenMixin",
+    "controlling.ControllingKeyEntryMixin",
+    "KeyBindsListMixin",
+    "KeyBindsScreenAccessor",
+    "KeyBindsScreenMixin",
+    "KeyEntryAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

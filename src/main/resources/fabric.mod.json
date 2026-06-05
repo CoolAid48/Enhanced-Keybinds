@@ -3,7 +3,7 @@
   "id": "enhancedkeybinds",
   "version": "${version}",
   "name": "Enhanced Keybinds",
-  "description": "Assign modifier keys to a keybind, and other vanilla-friendly additions",
+  "description": "Allows you to assign modifier keys to a keybind, and adds many new keybinds from various vanilla options",
   "authors": [
     "CoolAid48"
   ],
@@ -39,6 +39,7 @@
   "custom": {
     "modmenu": {
       "links": {
+        "modmenu.wiki": "https://coolaid.live/docs/enhancedkeybinds",
         "modmenu.donate" : "https://ko-fi.com/coolaid48",
         "modmenu.discord": "https://discord.gg/J2SGshKNah",
         "modmenu.modrinth": "https://modrinth.com/mod/enhanced-keybinds"

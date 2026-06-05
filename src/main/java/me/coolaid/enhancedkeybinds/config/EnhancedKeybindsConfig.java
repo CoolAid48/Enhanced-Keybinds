@@ -48,14 +48,20 @@ public final class EnhancedKeybindsConfig {
     }
 
     public static class Data {
+        // Accessibility
+        public boolean registerClosedCaptionsKeybind = true;
+        public boolean registerChatKeybind = true;
         // Controls
         public boolean registerAutoJumpKeybind = true;
         public boolean registerSneakModeKeybind = true;
         public boolean registerSprintModeKeybind = true;
-        public boolean registerClosedCaptionsKeybind = true;
+        public boolean registerAttackModeKeybind = true;
+        public boolean registerUseModeKeybind = true;
+        public boolean registerOperatorItemsTabKeybind = true;
         // Skin Customization
         public boolean registerSwapMainHandKeybind = true;
         public boolean registerToggleAllSkinLayersKeybind = true;
+        // Individual Skin Layers
         public boolean registerToggleCapeKeybind = true;
         public boolean registerToggleHatKeybind = true;
         public boolean registerToggleJacketKeybind = true;

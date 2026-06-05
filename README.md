@@ -1,16 +1,16 @@
 # CoolAid's Enhanced Keybinds
-![](https://img.shields.io/badge/Loader-Fabric/Quilt-blue?style=for-the-badge)
-![](https://img.shields.io/badge/Supports_MC_Versions-1.21.5_--_1.21.8_|_1.21.11_|_26.1-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Loaders-Fabric/Quilt-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Versions-1.21.5_--_1.21.8_|_1.21.11_|_26.x-blue?style=for-the-badge)
 ![](https://img.shields.io/badge/Environments-Client-blue?style=for-the-badge)
 
-### Assign modifier keys to a keybind, and other vanilla-friendly additions!
-## This mod features:
-- **Modifier Keys (Ctrl, Alt, Shift, Win) which can be combined with other keys for more keybind options, thanks to [Siphalor's Amecs](https://github.com/Siphalor/amecs/tree/cross-version/amecs-key-modifiers) key modifier implementation**
-- **New Vanilla Keybinds from various in-game options menus!**
-- **Functions completely client-side, with ModMenu and YACL config integration**
-- **All keybinds are enabled and `unbound` by default, and this mod's new keybinds can be enabled or disabled entirely in the config (restart required)**
+### Allows you to assign modifier keys to a keybind, and adds many new keybinds from various vanilla options!
+- **Modifier Keys (Ctrl, Alt, Shift, Win) which can be combined with other keys for more keybind combinations, thanks to [Siphalor's Amecs](https://github.com/Siphalor/amecs/tree/cross-version/amecs-key-modifiers) key modifier implementation**
+- **Adds new keybinds for vanilla settings from the accessibility, skin customization, and controls menus!**
+- **Keybinds screen adds additional buttons to filter *Unbound Keys* and *Key Conflicts*, and includes a confirmation button when attempting to *Reset All Keys***
+- **Functions completely client-side, with Mod Menu and YACL integration for configuration**
+- **All keybinds `unbound` by default, and this mod's new keybinds can be enabled or disabled entirely from the config (restart required)**
 
-#### Any bugs or issues, please make a report on [GitHub](https://github.com/CoolAid48/Enhanced-Keybinds/issues)
+#### For any issues or feature requests, please make a report on [GitHub](https://github.com/CoolAid48/Enhanced-Keybinds/issues)
 
 <details><summary>Old Mod Description (<3.0.0)</summary>
 
@@ -26,3 +26,12 @@
 
 [<img alt="Support me on Ko-fi" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3.2.0/assets/cozy/donate/kofi-singular-alt_vector.svg"/>](https://ko-fi.com/coolaid48)
 [<img alt="Chat with me in Discord" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3.2.0/assets/cozy/social/discord-plural_vector.svg"/>](https://discord.gg/J2SGshKNah)
+[<img alt="Watch me on Twitch" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3.2.0/assets/cozy/social/twitch-singular_vector.svg"/>](https://www.twitch.tv/coolaid48)
+
+![server hosting partner](https://cdn.modrinth.com/data/cached_images/8e85210a65b7c17998987c57b7571ba2fbd19bfb.png)
+
+### Will I backport this mod?
+Probably not, but maybe. If it's requested then I'm more likely to get around to it. PRs are always welcome!
+
+### NeoForge support?
+Not anytime soon.
