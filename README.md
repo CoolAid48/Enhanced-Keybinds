@@ -1,6 +1,6 @@
 # CoolAid's Enhanced Keybinds
 ![](https://img.shields.io/badge/Loaders-Fabric/Quilt-blue?style=for-the-badge)
-![](https://img.shields.io/badge/Versions-1.21.5_--_1.21.8_|_1.21.11_|_26.x-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Versions-1.21.5_--_1.21.8_|_1.21.11_|_26.1.x-blue?style=for-the-badge)
 ![](https://img.shields.io/badge/Environments-Client-blue?style=for-the-badge)
 
 ### Allows you to assign modifier keys to a keybind, and adds many new keybinds from various vanilla options!

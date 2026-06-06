@@ -3,7 +3,7 @@ package me.coolaid.enhancedkeybinds.keybindings;
 import com.mojang.blaze3d.platform.InputConstants;
 import me.coolaid.enhancedkeybinds.config.EnhancedKeybindsConfig;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
@@ -61,7 +61,7 @@ public final class ControlsTogglesBinds {
         while (toggleAutoJump != null && toggleAutoJump.consumeClick()) {
             boolean enabled = !client.options.autoJump().get();
             client.options.autoJump().set(enabled);
-            client.player.sendOverlayMessage(stateMessage("enhancedkeybinds.actionbar.auto-jump", enabled));
+            client.player.displayClientMessage(stateMessage("enhancedkeybinds.actionbar.auto-jump", enabled), true);
         }
 
         while (toggleSneak != null && toggleSneak.consumeClick()) {
@@ -69,7 +69,7 @@ public final class ControlsTogglesBinds {
             client.options.toggleCrouch().set(enabled);
             MutableComponent mode = Component.translatable(enabled ? "enhancedkeybinds.actionbar.component.toggle" : "enhancedkeybinds.actionbar.component.hold")
                     .withStyle(ChatFormatting.GREEN);
-            client.player.sendOverlayMessage(Component.translatable("enhancedkeybinds.actionbar.sneaking_mode", mode));
+            client.player.displayClientMessage(Component.translatable("enhancedkeybinds.actionbar.sneaking_mode", mode), true);
         }
 
         while (toggleSprint != null && toggleSprint.consumeClick()) {
@@ -77,14 +77,14 @@ public final class ControlsTogglesBinds {
             client.options.toggleSprint().set(enabled);
             MutableComponent mode = Component.translatable(enabled ? "enhancedkeybinds.actionbar.component.toggle" : "enhancedkeybinds.actionbar.component.hold")
                     .withStyle(ChatFormatting.GREEN);
-            client.player.sendOverlayMessage(
-                    Component.translatable("enhancedkeybinds.actionbar.sprinting_mode", mode));
+            client.player.displayClientMessage(
+                    Component.translatable("enhancedkeybinds.actionbar.sprinting_mode", mode), true);
         }
 
         while (toggleClosedCaptions != null && toggleClosedCaptions.consumeClick()) {
             boolean enabled = !client.options.showSubtitles().get();
             client.options.showSubtitles().set(enabled);
-            client.player.sendOverlayMessage(stateMessage("enhancedkeybinds.actionbar.closed-captions", enabled));
+            client.player.displayClientMessage(stateMessage("enhancedkeybinds.actionbar.closed-captions", enabled), true);
         }
 
         while (toggleAttackMode != null && toggleAttackMode.consumeClick()) {
@@ -94,7 +94,7 @@ public final class ControlsTogglesBinds {
                 cancelAttackAction(client);
             }
             client.options.save();
-            client.player.sendOverlayMessage(modeMessage("enhancedkeybinds.actionbar.attack-destroy", enabled));
+            client.player.displayClientMessage(modeMessage("enhancedkeybinds.actionbar.attack-destroy", enabled), true);
         }
 
         while (toggleUseMode != null && toggleUseMode.consumeClick()) {
@@ -104,22 +104,22 @@ public final class ControlsTogglesBinds {
                 cancelUseAction(client);
             }
             client.options.save();
-            client.player.sendOverlayMessage(modeMessage("enhancedkeybinds.actionbar.use-item-place-block", enabled));
+            client.player.displayClientMessage(modeMessage("enhancedkeybinds.actionbar.use-item-place-block", enabled), true);
         }
 
         while (toggleOperatorItemsTab != null && toggleOperatorItemsTab.consumeClick()) {
             boolean enabled = !client.options.operatorItemsTab().get();
             client.options.operatorItemsTab().set(enabled);
             client.options.save();
-            client.player.sendOverlayMessage(stateMessage("enhancedkeybinds.actionbar.operator-items-tab", enabled));
+            client.player.displayClientMessage(stateMessage("enhancedkeybinds.actionbar.operator-items-tab", enabled), true);
         }
 
         while (cycleChat != null && cycleChat.consumeClick()) {
             ChatVisiblity visibility = nextChatVisibility(client.options.chatVisibility().get());
             client.options.chatVisibility().set(visibility);
             client.options.save();
-            client.player.sendOverlayMessage(
-                    Component.translatable("enhancedkeybinds.actionbar.chat", chatVisibilityMode(visibility)));
+            client.player.displayClientMessage(
+                    Component.translatable("enhancedkeybinds.actionbar.chat", chatVisibilityMode(visibility)), true);
         }
     }
 
@@ -176,6 +176,6 @@ public final class ControlsTogglesBinds {
     }
 
     private static KeyMapping register(String translationKey) {
-        return KeyMappingHelper.registerKeyMapping(new KeyMapping(translationKey, InputConstants.UNKNOWN.getValue(), RegisterCategories.CONTROLS));
+        return KeyBindingHelper.registerKeyBinding(new KeyMapping(translationKey, InputConstants.UNKNOWN.getValue(), RegisterCategories.CONTROLS));
     }
 }
