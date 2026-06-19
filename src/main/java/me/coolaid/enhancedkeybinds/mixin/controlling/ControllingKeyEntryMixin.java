@@ -22,7 +22,7 @@ public abstract class ControllingKeyEntryMixin {
     @Shadow(remap = false)
     public abstract Button getBtnResetKeyBinding();
 
-    @Inject(method = "mouseClicked", at = @At("HEAD"))
+    @Inject(method = {"mouseClicked", "method_25402"}, at = @At("HEAD"), require = 0)
     private void enhancedkeybinds$syncAmecsStateBeforeClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         Button changeButton = this.getBtnChangeKeyBinding();
         if (isMouseOver(changeButton, event)) {

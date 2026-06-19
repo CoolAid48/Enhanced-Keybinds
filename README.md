@@ -1,6 +1,6 @@
 # CoolAid's Enhanced Keybinds
 ![](https://img.shields.io/badge/Loaders-Fabric/Quilt-blue?style=for-the-badge)
-![](https://img.shields.io/badge/Versions-1.21.5_--_1.21.8_|_1.21.11_|_26.1.x-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Versions-1.21.11_|_26.1.x_|_26.2.x-blue?style=for-the-badge)
 ![](https://img.shields.io/badge/Environments-Client-blue?style=for-the-badge)
 
 ### Allows you to assign modifier keys to a keybind, and adds many new keybinds from various vanilla options!
@@ -28,10 +28,11 @@
 [<img alt="Chat with me in Discord" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3.2.0/assets/cozy/social/discord-plural_vector.svg"/>](https://discord.gg/J2SGshKNah)
 [<img alt="Watch me on Twitch" src="https://cdn.jsdelivr.net/npm/@intergrav/devins-badges@3.2.0/assets/cozy/social/twitch-singular_vector.svg"/>](https://www.twitch.tv/coolaid48)
 
-![server hosting partner](https://cdn.modrinth.com/data/cached_images/8e85210a65b7c17998987c57b7571ba2fbd19bfb.png)
-
 ### Will I backport this mod?
 Probably not, but maybe. If it's requested then I'm more likely to get around to it. PRs are always welcome!
 
 ### NeoForge support?
 Not anytime soon.
+
+## Looking for a server host?
+![server hosting partner](https://cdn.modrinth.com/data/cached_images/8e85210a65b7c17998987c57b7571ba2fbd19bfb.png)
