@@ -2,7 +2,7 @@ package me.coolaid.enhancedkeybinds.mixin;
 
 import me.coolaid.enhancedkeybinds.screen.KeyBindsFilterController;
 import me.coolaid.enhancedkeybinds.screen.KeyBindsFilterMode;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LayoutElement;
@@ -74,8 +74,8 @@ public abstract class KeyBindsScreenMixin {
         );
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
-    private void enhancedkeybinds$syncFilters(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("HEAD"))
+    private void enhancedkeybinds$syncFilters(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         KeyBindsFilterController.sync((KeyBindsScreen) (Object) this);
     }
 
