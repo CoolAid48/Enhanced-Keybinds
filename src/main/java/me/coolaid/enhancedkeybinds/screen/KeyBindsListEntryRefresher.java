@@ -1,5 +1,6 @@
 package me.coolaid.enhancedkeybinds.screen;
 
+import me.coolaid.enhancedkeybinds.mixin.KeyBindsListEntryAccessor;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsList;
 
 import java.lang.reflect.InvocationTargetException;
@@ -16,6 +17,12 @@ public final class KeyBindsListEntryRefresher {
     }
 
     public static void refresh(KeyBindsList.Entry entry) {
+        try {
+            ((KeyBindsListEntryAccessor) entry).enhancedkeybinds$refreshEntry();
+            return;
+        } catch (AbstractMethodError ignored) {
+        }
+
         Optional<Method> method = REFRESH_METHODS.computeIfAbsent(entry.getClass(), KeyBindsListEntryRefresher::findRefreshMethod);
         if (method.isEmpty()) {
             return;
