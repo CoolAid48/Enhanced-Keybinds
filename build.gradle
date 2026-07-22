@@ -96,6 +96,7 @@ publishMods {
     type = STABLE
     displayName = "Enhanced Keybinds v${releaseVersion} for ${minecraftVersionLabel}"
     modLoaders.add("fabric")
+    modLoaders.add("quilt")
     dryRun = providers.environmentVariable("PUBLISH_DRY_RUN")
             .map { it.toBoolean() }
             .orElse(false)
@@ -127,5 +128,4 @@ publishing {
             from components.java
         }
     }
-
 }
