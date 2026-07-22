@@ -96,7 +96,7 @@ publishMods {
             .orElse(false)
 
     modrinth {
-        projectId = "enhanced-keybinds"
+        projectId = "NP3csV5D"
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
         minecraftVersions.add(minecraftVersion)
         environment = CLIENT_ONLY
