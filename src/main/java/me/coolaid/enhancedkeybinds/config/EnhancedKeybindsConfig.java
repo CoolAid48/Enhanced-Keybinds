@@ -2,6 +2,8 @@ package me.coolaid.enhancedkeybinds.config;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonParseException;
+import me.coolaid.enhancedkeybinds.EnhancedKeybinds;
 import net.fabricmc.loader.api.FabricLoader;
 
 import java.io.IOException;
@@ -28,8 +30,9 @@ public final class EnhancedKeybindsConfig {
         try (Reader reader = Files.newBufferedReader(CONFIG_PATH)) {
             Data loaded = GSON.fromJson(reader, Data.class);
             data = loaded != null ? loaded : new Data();
-        } catch (IOException e) {
+        } catch (IOException | JsonParseException exception) {
             data = new Data();
+            EnhancedKeybinds.LOGGER.warn("Failed to load {}; using defaults", CONFIG_PATH, exception);
         }
     }
 
@@ -39,7 +42,8 @@ public final class EnhancedKeybindsConfig {
             try (Writer writer = Files.newBufferedWriter(CONFIG_PATH)) {
                 GSON.toJson(data, writer);
             }
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            EnhancedKeybinds.LOGGER.warn("Failed to save {}", CONFIG_PATH, exception);
         }
     }
 
@@ -62,12 +66,12 @@ public final class EnhancedKeybindsConfig {
         public boolean registerSwapMainHandKeybind = true;
         public boolean registerToggleAllSkinLayersKeybind = true;
         // Individual Skin Layers
-        public boolean registerToggleCapeKeybind = true;
-        public boolean registerToggleHatKeybind = true;
-        public boolean registerToggleJacketKeybind = true;
-        public boolean registerToggleLeftSleeveKeybind = true;
-        public boolean registerToggleRightSleeveKeybind = true;
-        public boolean registerToggleLeftPantsKeybind = true;
-        public boolean registerToggleRightPantsKeybind = true;
+        public boolean registerToggleCapeKeybind = false;
+        public boolean registerToggleHatKeybind = false;
+        public boolean registerToggleJacketKeybind = false;
+        public boolean registerToggleLeftSleeveKeybind = false;
+        public boolean registerToggleRightSleeveKeybind = false;
+        public boolean registerToggleLeftPantsKeybind = false;
+        public boolean registerToggleRightPantsKeybind = false;
     }
 }

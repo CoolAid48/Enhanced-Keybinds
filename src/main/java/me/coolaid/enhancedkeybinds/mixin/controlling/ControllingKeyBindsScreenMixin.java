@@ -32,7 +32,7 @@ public abstract class ControllingKeyBindsScreenMixin extends KeyBindsScreen {
     @Shadow(remap = false)
     public abstract Button resetButton();
 
-    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    @Inject(method = {"keyPressed", "method_25404"}, at = @At("HEAD"), cancellable = true, require = 0)
     private void enhancedkeybinds$handleAmecsKeyPress(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
         KeyMapping selectedKey = this.selectedKey;
         if (selectedKey == null) {
@@ -55,10 +55,11 @@ public abstract class ControllingKeyBindsScreenMixin extends KeyBindsScreen {
         cir.setReturnValue(true);
     }
 
-    @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)
+    @Inject(method = {"mouseClicked", "method_25402"}, at = @At("HEAD"), cancellable = true, require = 0)
     private void enhancedkeybinds$handleAmecsMouseClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         Button resetButton = this.resetButton();
-        if (resetButton != null && resetButton.active && isMouseOver(resetButton, event) && isConfirmingReset(resetButton)) {
+        if (resetButton != null && resetButton.active
+                && resetButton.isMouseOver(event.x(), event.y()) && isConfirmingReset(resetButton)) {
             for (KeyMapping keyMapping : this.options.keyMappings) {
                 AmecsKeyModifiersApi.resetBoundModifiers(keyMapping);
             }
@@ -81,10 +82,4 @@ public abstract class ControllingKeyBindsScreenMixin extends KeyBindsScreen {
                 && "options.confirmReset".equals(contents.getKey());
     }
 
-    private static boolean isMouseOver(Button button, MouseButtonEvent event) {
-        return event.x() >= button.getX()
-                && event.y() >= button.getY()
-                && event.x() < button.getX() + button.getWidth()
-                && event.y() < button.getY() + button.getHeight();
-    }
 }

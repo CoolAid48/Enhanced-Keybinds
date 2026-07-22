@@ -1,13 +1,17 @@
 package me.coolaid.enhancedkeybinds.screen;
 
+import de.siphalor.amecs.key_modifiers.api.AmecsKeyModifiersApi;
 import me.coolaid.enhancedkeybinds.mixin.KeyBindsScreenAccessor;
 import me.coolaid.enhancedkeybinds.mixin.KeyEntryAccessor;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsList;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
+import org.lwjgl.glfw.GLFW;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
@@ -27,11 +31,6 @@ public final class KeyBindsFilterController {
     private static final int BUTTON_WIDTH = 150;
     private static final Map<KeyBindsScreen, FilterState> STATES = new WeakHashMap<>();
     private static final Map<Class<?>, Optional<AccessibleObject>> KEY_ACCESSORS = new HashMap<>();
-    private static final Map<Class<?>, Optional<AccessibleObject>> CONFLICT_ACCESSORS = new HashMap<>();
-    private static final Map<Class<?>, Optional<Method>> ALL_ENTRY_ACCESSORS = new HashMap<>();
-    private static final Map<Class<?>, Optional<EntryListMutators>> ENTRY_LIST_MUTATORS = new HashMap<>();
-    private static final Map<Class<?>, Optional<Field>> SEARCH_FIELDS = new HashMap<>();
-    private static final Map<Class<?>, Optional<Method>> SEARCH_VALUE_ACCESSORS = new HashMap<>();
     private static final Map<Class<?>, Boolean> CATEGORY_ENTRY_CLASSES = new HashMap<>();
 
     private KeyBindsFilterController() {
@@ -41,6 +40,32 @@ public final class KeyBindsFilterController {
         return Button.builder(buttonMessage(mode, false), pressed -> toggle(screen, mode))
                 .width(BUTTON_WIDTH)
                 .build();
+    }
+
+    public static void attachSearchBox(KeyBindsScreen screen, EditBox searchBox) {
+        FilterState state = state(screen);
+        state.searchBox = searchBox;
+        searchBox.setValue(state.searchQuery);
+        searchBox.setResponder(query -> updateSearch(screen, query));
+    }
+
+    public static boolean handleSearchKeyPressed(KeyBindsScreen screen, KeyEvent event) {
+        FilterState state = STATES.get(screen);
+        if (state == null || state.searchBox == null) {
+            return false;
+        }
+
+        EditBox searchBox = state.searchBox;
+        if (!searchBox.isFocused() && screen.selectedKey == null
+                && event.hasControlDown() && event.key() == GLFW.GLFW_KEY_F) {
+            screen.setFocused(searchBox);
+            return true;
+        }
+        if (searchBox.isFocused() && event.isEscape()) {
+            screen.setFocused(null);
+            return true;
+        }
+        return false;
     }
 
     public static Button.Builder createResetAllButtonBuilder(KeyBindsScreen screen, Button.OnPress vanillaReset) {
@@ -56,7 +81,7 @@ public final class KeyBindsFilterController {
 
             state.confirmingReset = false;
             vanillaReset.onPress(button);
-            resetAmecsModifiers(screen);
+            resetAmecsModifiers();
             refreshList(screen);
             state.filterDirty = true;
             button.setMessage(Component.translatable("enhancedkeybinds.keybind_filter.reset_all"));
@@ -67,6 +92,10 @@ public final class KeyBindsFilterController {
         FilterState state = state(screen);
         state.unboundButton = unboundButton;
         state.conflictsButton = conflictsButton;
+        KeyBindsList list = keyBindsList(screen);
+        if (list != null && state.list != list) {
+            captureSourceEntries(state, list, entries(list));
+        }
         updateButtons(state);
     }
 
@@ -77,30 +106,39 @@ public final class KeyBindsFilterController {
         }
 
         FilterState state = state(screen);
-        state.list = list;
-        String searchQuery = searchQuery(screen);
-        if (state.mode == selectedMode) {
-            restoreAll(list, state, true);
-            state.mode = KeyBindsFilterMode.ALL;
-            state.filterDirty = false;
-            state.searchQuery = searchQuery;
-            updateButtons(state);
+        List<KeyBindsList.Entry> currentEntries = entries(list);
+        if (state.list != list || state.sourceEntries == null || state.visibleEntries == null
+                || !currentEntries.equals(state.visibleEntries)) {
+            captureSourceEntries(state, list, currentEntries);
+        }
+
+        state.mode = state.mode == selectedMode ? KeyBindsFilterMode.ALL : selectedMode;
+        state.filterDirty = true;
+        applyFilter(list, state, true, currentEntries, keyStateFingerprint());
+        updateButtons(state);
+    }
+
+    private static void updateSearch(KeyBindsScreen screen, String query) {
+        FilterState state = state(screen);
+        String normalizedQuery = normalizeSearchText(query);
+        if (normalizedQuery.equals(state.searchQuery)) {
+            return;
+        }
+
+        state.searchQuery = normalizedQuery;
+        state.filterDirty = true;
+
+        KeyBindsList list = keyBindsList(screen);
+        if (list == null) {
             return;
         }
 
         List<KeyBindsList.Entry> currentEntries = entries(list);
-        List<KeyBindsList.Entry> sourceEntries = sourceEntries(list, currentEntries, searchQuery);
-        if (state.mode == KeyBindsFilterMode.ALL || state.sourceEntries == null) {
-            state.sourceEntries = sourceEntries;
-        } else if (!currentEntries.equals(state.visibleEntries)) {
-            state.sourceEntries = sourceEntries;
+        if (state.list != list || state.sourceEntries == null || state.visibleEntries == null
+                || !currentEntries.equals(state.visibleEntries)) {
+            captureSourceEntries(state, list, currentEntries);
         }
-
-        state.mode = selectedMode;
-        state.searchQuery = searchQuery;
-        state.filterDirty = true;
         applyFilter(list, state, true, currentEntries, keyStateFingerprint());
-        updateButtons(state);
     }
 
     public static void sync(KeyBindsScreen screen) {
@@ -111,7 +149,7 @@ public final class KeyBindsFilterController {
 
         syncResetButton(state);
 
-        if (state.mode == KeyBindsFilterMode.ALL) {
+        if (state.mode == KeyBindsFilterMode.ALL && state.searchQuery.isEmpty() && !state.filterDirty) {
             return;
         }
 
@@ -121,15 +159,17 @@ public final class KeyBindsFilterController {
         }
 
         List<KeyBindsList.Entry> currentEntries = entries(list);
-        String searchQuery = searchQuery(screen);
         long keyStateFingerprint = keyStateFingerprint();
-        if (state.list != list || !currentEntries.equals(state.visibleEntries) || !searchQuery.equals(state.searchQuery)) {
-            state.list = list;
-            state.searchQuery = searchQuery;
-            state.sourceEntries = sourceEntries(list, currentEntries, searchQuery);
+        if (state.list != list || state.sourceEntries == null || state.visibleEntries == null) {
+            captureSourceEntries(state, list, currentEntries);
             state.filterDirty = true;
             applyFilter(list, state, true, currentEntries, keyStateFingerprint);
             return;
+        }
+
+        if (!currentEntries.equals(state.visibleEntries)) {
+            captureSourceEntries(state, list, currentEntries);
+            state.filterDirty = true;
         }
 
         if (state.filterDirty || state.keyStateFingerprint != keyStateFingerprint) {
@@ -145,10 +185,10 @@ public final class KeyBindsFilterController {
             long keyStateFingerprint
     ) {
         if (state.sourceEntries == null) {
-            state.sourceEntries = currentEntries;
+            captureSourceEntries(state, list, currentEntries);
         }
 
-        List<KeyBindsList.Entry> filteredEntries = filterEntries(state.sourceEntries, state.mode);
+        List<KeyBindsList.Entry> filteredEntries = filterEntries(state.sourceEntries, state.mode, state.searchQuery);
         if (filteredEntries.equals(currentEntries)) {
             if (resetScroll) {
                 resetScroll(list);
@@ -165,23 +205,17 @@ public final class KeyBindsFilterController {
         state.filterDirty = false;
     }
 
-    private static void restoreAll(KeyBindsList list, FilterState state, boolean resetScroll) {
-        if (state.sourceEntries != null) {
-            replaceEntries(list, state.sourceEntries, resetScroll);
-        }
-        state.sourceEntries = null;
-        state.visibleEntries = null;
-        state.keyStateFingerprint = keyStateFingerprint();
+    private static void captureSourceEntries(FilterState state, KeyBindsList list, List<KeyBindsList.Entry> sourceEntries) {
+        state.list = list;
+        state.sourceEntries = List.copyOf(sourceEntries);
+        state.visibleEntries = state.sourceEntries;
     }
 
     private static void replaceEntries(KeyBindsList list, List<KeyBindsList.Entry> newEntries, boolean resetScroll) {
         if (resetScroll) {
             resetScroll(list);
         }
-        // More Search Bars keeps a separate full backing list; avoid mutating it when filtering visible rows.
-        if (!replaceVisibleEntries(list, newEntries)) {
-            list.replaceEntries(newEntries);
-        }
+        list.replaceEntries(newEntries);
         list.refreshEntries();
         if (resetScroll) {
             resetScroll(list);
@@ -192,12 +226,17 @@ public final class KeyBindsFilterController {
         list.setScrollAmount(0);
     }
 
-    private static List<KeyBindsList.Entry> filterEntries(List<KeyBindsList.Entry> sourceEntries, KeyBindsFilterMode mode) {
-        if (mode == KeyBindsFilterMode.ALL) {
-            return new ArrayList<>(sourceEntries);
+    private static List<KeyBindsList.Entry> filterEntries(
+            List<KeyBindsList.Entry> sourceEntries,
+            KeyBindsFilterMode mode,
+            String searchQuery
+    ) {
+        if (mode == KeyBindsFilterMode.ALL && searchQuery.isEmpty()) {
+            return sourceEntries;
         }
 
         List<KeyBindsList.Entry> filteredEntries = new ArrayList<>();
+        Set<KeyMapping> conflictingKeys = mode == KeyBindsFilterMode.CONFLICTS ? findConflictingKeys() : Set.of();
         KeyBindsList.Entry currentCategory = null;
         boolean categoryAdded = false;
 
@@ -211,7 +250,7 @@ public final class KeyBindsFilterController {
                 continue;
             }
 
-            if (matches(entry, key, mode)) {
+            if (matches(key, mode, conflictingKeys) && matchesSearch(key, searchQuery)) {
                 if (currentCategory != null && !categoryAdded) {
                     filteredEntries.add(currentCategory);
                     categoryAdded = true;
@@ -223,78 +262,58 @@ public final class KeyBindsFilterController {
         return filteredEntries;
     }
 
-    private static boolean matches(KeyBindsList.Entry entry, KeyMapping key, KeyBindsFilterMode mode) {
+    private static boolean matches(KeyMapping key, KeyBindsFilterMode mode, Set<KeyMapping> conflictingKeys) {
         return switch (mode) {
             case ALL -> true;
             case UNBOUND -> key.isUnbound();
-            case CONFLICTS -> hasConflict(entry, key);
+            case CONFLICTS -> conflictingKeys.contains(key);
         };
     }
 
-    private static boolean hasConflict(KeyBindsList.Entry entry, KeyMapping key) {
-        if (key.isUnbound()) {
-            return false;
+    private static boolean matchesSearch(KeyMapping key, String query) {
+        if (query.isEmpty()) {
+            return true;
         }
-
-        KeyBindsListEntryRefresher.refresh(entry);
-
-        Boolean entryConflict = entryConflict(entry);
-        if (entryConflict != null) {
-            return entryConflict;
+        if (containsNormalized(key.getCategory().label().getString(), query)) {
+            return true;
         }
+        if (containsNormalized(Component.translatable(key.getName()).getString(), query)) {
+            return true;
+        }
+        return !key.isUnbound() && containsNormalized(key.getTranslatedKeyMessage().getString(), query);
+    }
 
+    private static String normalizeSearchText(String text) {
+        return text == null || text.isBlank() ? "" : text.toLowerCase(Locale.ROOT);
+    }
+
+    private static boolean containsNormalized(String candidate, String query) {
+        return candidate != null && candidate.toLowerCase(Locale.ROOT).contains(query);
+    }
+
+    private static Set<KeyMapping> findConflictingKeys() {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft == null || minecraft.options == null) {
-            return false;
+            return Set.of();
         }
 
-        for (KeyMapping other : minecraft.options.keyMappings) {
-            if (other != key && !other.isUnbound() && key.same(other) && (!other.isDefault() || !key.isDefault())) {
-                return true;
+        KeyMapping[] keyMappings = minecraft.options.keyMappings;
+        Set<KeyMapping> conflicts = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (int firstIndex = 0; firstIndex < keyMappings.length; firstIndex++) {
+            KeyMapping first = keyMappings[firstIndex];
+            if (first.isUnbound()) {
+                continue;
+            }
+
+            for (int secondIndex = firstIndex + 1; secondIndex < keyMappings.length; secondIndex++) {
+                KeyMapping second = keyMappings[secondIndex];
+                if (!second.isUnbound() && first.same(second) && (!first.isDefault() || !second.isDefault())) {
+                    conflicts.add(first);
+                    conflicts.add(second);
+                }
             }
         }
-        return false;
-    }
-
-    private static Boolean entryConflict(KeyBindsList.Entry entry) {
-        Optional<AccessibleObject> accessor = CONFLICT_ACCESSORS.computeIfAbsent(entry.getClass(), KeyBindsFilterController::findConflictAccessor);
-        if (accessor.isEmpty()) {
-            return null;
-        }
-
-        try {
-            AccessibleObject object = accessor.get();
-            if (object instanceof Method method) {
-                Object value = method.invoke(entry);
-                return value instanceof Boolean conflict ? conflict : null;
-            }
-            if (object instanceof Field field) {
-                Object value = field.get(entry);
-                return value instanceof Boolean conflict ? conflict : null;
-            }
-        } catch (ReflectiveOperationException ignored) {
-        }
-        return null;
-    }
-
-    private static Optional<AccessibleObject> findConflictAccessor(Class<?> entryClass) {
-        for (String methodName : List.of("hasCollision", "hasConflict", "isConflicting", "isConflict")) {
-            Method method = findNoArgMethod(entryClass, methodName);
-            if (method != null && (method.getReturnType() == boolean.class || method.getReturnType() == Boolean.class)) {
-                method.setAccessible(true);
-                return Optional.of(method);
-            }
-        }
-
-        for (String fieldName : List.of("hasCollision", "conflicting", "hasConflict", "conflict")) {
-            Field field = findField(entryClass, fieldName);
-            if (field != null && (field.getType() == boolean.class || field.getType() == Boolean.class)) {
-                field.setAccessible(true);
-                return Optional.of(field);
-            }
-        }
-
-        return Optional.empty();
+        return conflicts;
     }
 
     private static KeyMapping key(KeyBindsList.Entry entry) {
@@ -390,138 +409,9 @@ public final class KeyBindsFilterController {
     }
 
     private static List<KeyBindsList.Entry> entries(KeyBindsList list) {
-        return new ArrayList<>(list.children());
+        return List.copyOf(list.children());
     }
 
-    private static List<KeyBindsList.Entry> sourceEntries(KeyBindsList list, List<KeyBindsList.Entry> fallbackEntries, String searchQuery) {
-        // More Search Bars has already narrowed the visible list while search text is present.
-        if (!searchQuery.isBlank()) {
-            return fallbackEntries;
-        }
-
-        Optional<Method> accessor = ALL_ENTRY_ACCESSORS.computeIfAbsent(list.getClass(), KeyBindsFilterController::findAllEntriesAccessor);
-        if (accessor.isEmpty()) {
-            return fallbackEntries;
-        }
-
-        try {
-            Object value = accessor.get().invoke(list);
-            if (value instanceof List<?> entries) {
-                List<KeyBindsList.Entry> sourceEntries = new ArrayList<>();
-                Set<KeyBindsList.Entry> seenEntries = Collections.newSetFromMap(new IdentityHashMap<>());
-                for (Object entry : entries) {
-                    if (entry instanceof KeyBindsList.Entry keyBindsEntry && seenEntries.add(keyBindsEntry)) {
-                        sourceEntries.add(keyBindsEntry);
-                    }
-                }
-                return sourceEntries;
-            }
-        } catch (ReflectiveOperationException ignored) {
-        }
-        return fallbackEntries;
-    }
-
-    private static String searchQuery(KeyBindsScreen screen) {
-        Optional<Field> field = SEARCH_FIELDS.computeIfAbsent(screen.getClass(), KeyBindsFilterController::findSearchField);
-        if (field.isEmpty()) {
-            return "";
-        }
-
-        try {
-            Object searchBox = field.get().get(screen);
-            if (searchBox == null) {
-                return "";
-            }
-
-            Optional<Method> valueAccessor = SEARCH_VALUE_ACCESSORS.computeIfAbsent(searchBox.getClass(), KeyBindsFilterController::findSearchValueAccessor);
-            if (valueAccessor.isEmpty()) {
-                return "";
-            }
-
-            Object value = valueAccessor.get().invoke(searchBox);
-            return value instanceof String query ? query : "";
-        } catch (ReflectiveOperationException ignored) {
-            return "";
-        }
-    }
-
-    private static Optional<Field> findSearchField(Class<?> screenClass) {
-        for (String fieldName : List.of("search", "searchBox")) {
-            Field field = findField(screenClass, fieldName);
-            if (field != null) {
-                field.setAccessible(true);
-                return Optional.of(field);
-            }
-        }
-        return Optional.empty();
-    }
-
-    private static Optional<Method> findSearchValueAccessor(Class<?> searchBoxClass) {
-        Method method = findNoArgMethod(searchBoxClass, "getValue");
-        if (method != null && String.class.isAssignableFrom(method.getReturnType())) {
-            method.setAccessible(true);
-            return Optional.of(method);
-        }
-        return Optional.empty();
-    }
-
-    private static Optional<Method> findAllEntriesAccessor(Class<?> listClass) {
-        Method method = findNoArgMethod(listClass, "getAllEntries");
-        if (method != null && List.class.isAssignableFrom(method.getReturnType())) {
-            method.setAccessible(true);
-            return Optional.of(method);
-        }
-        return Optional.empty();
-    }
-
-    private static boolean replaceVisibleEntries(KeyBindsList list, List<KeyBindsList.Entry> newEntries) {
-        Optional<EntryListMutators> mutators = ENTRY_LIST_MUTATORS.computeIfAbsent(list.getClass(), KeyBindsFilterController::findEntryListMutators);
-        if (mutators.isEmpty()) {
-            return false;
-        }
-
-        try {
-            EntryListMutators entryListMutators = mutators.get();
-            entryListMutators.clearEntries.invoke(list);
-            for (KeyBindsList.Entry entry : newEntries) {
-                entryListMutators.addEntryInternal.invoke(list, entry);
-            }
-            return true;
-        } catch (ReflectiveOperationException ignored) {
-            return false;
-        }
-    }
-
-    private static Optional<EntryListMutators> findEntryListMutators(Class<?> listClass) {
-        Method allEntries = findNoArgMethod(listClass, "getAllEntries");
-        Method clearEntries = findNoArgMethod(listClass, "clearEntries");
-        Method addEntryInternal = findEntryMethod(listClass, "addEntryInternal");
-        if (allEntries == null || clearEntries == null || addEntryInternal == null) {
-            return Optional.empty();
-        }
-
-        allEntries.setAccessible(true);
-        clearEntries.setAccessible(true);
-        addEntryInternal.setAccessible(true);
-        return Optional.of(new EntryListMutators(clearEntries, addEntryInternal));
-    }
-
-    private static Method findEntryMethod(Class<?> listClass, String methodName) {
-        Class<?> currentClass = listClass;
-        while (currentClass != null) {
-            for (Method method : currentClass.getDeclaredMethods()) {
-                if (
-                        method.getName().equals(methodName)
-                                && method.getParameterCount() == 1
-                                && method.getParameterTypes()[0].isAssignableFrom(KeyBindsList.Entry.class)
-                ) {
-                    return method;
-                }
-            }
-            currentClass = currentClass.getSuperclass();
-        }
-        return null;
-    }
 
     private static FilterState state(KeyBindsScreen screen) {
         return STATES.computeIfAbsent(screen, ignored -> new FilterState());
@@ -552,15 +442,16 @@ public final class KeyBindsFilterController {
         state.resetButton.setMessage(Component.translatable("enhancedkeybinds.keybind_filter.reset_all"));
     }
 
-    private static void resetAmecsModifiers(KeyBindsScreen screen) {
+    private static void resetAmecsModifiers() {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft == null || minecraft.options == null) {
             return;
         }
 
-        if (AmecsModifierResetter.resetAll(minecraft.options.keyMappings)) {
-            KeyMapping.resetMapping();
+        for (KeyMapping keyMapping : minecraft.options.keyMappings) {
+            AmecsKeyModifiersApi.resetBoundModifiers(keyMapping);
         }
+        KeyMapping.resetMapping();
     }
 
     private static void refreshList(KeyBindsScreen screen) {
@@ -578,7 +469,6 @@ public final class KeyBindsFilterController {
 
         long fingerprint = 1125899906842597L;
         for (KeyMapping keyMapping : minecraft.options.keyMappings) {
-            fingerprint = 31L * fingerprint + keyMapping.getName().hashCode();
             fingerprint = 31L * fingerprint + keyMapping.saveString().hashCode();
             fingerprint = 31L * fingerprint + Boolean.hashCode(keyMapping.isDefault());
             fingerprint = 31L * fingerprint + keyMapping.getTranslatedKeyMessage().getString().hashCode();
@@ -592,58 +482,13 @@ public final class KeyBindsFilterController {
         private List<KeyBindsList.Entry> sourceEntries;
         private List<KeyBindsList.Entry> visibleEntries;
         private String searchQuery = "";
+        private EditBox searchBox;
         private long keyStateFingerprint;
         private boolean filterDirty;
         private Button unboundButton;
         private Button conflictsButton;
         private Button resetButton;
         private boolean confirmingReset;
-    }
-
-    private static final class EntryListMutators {
-        private final Method clearEntries;
-        private final Method addEntryInternal;
-
-        private EntryListMutators(Method clearEntries, Method addEntryInternal) {
-            this.clearEntries = clearEntries;
-            this.addEntryInternal = addEntryInternal;
-        }
-    }
-
-    private static final class AmecsModifierResetter {
-        private static final AmecsModifierResetter INSTANCE = new AmecsModifierResetter();
-
-        private final Method resetBoundModifiers;
-
-        private AmecsModifierResetter() {
-            Method resetBoundModifiersMethod = null;
-            try {
-                Class<?> apiClass = Class.forName("de.siphalor.amecs.key_modifiers.api.AmecsKeyModifiersApi");
-                resetBoundModifiersMethod = apiClass.getMethod("resetBoundModifiers", KeyMapping.class);
-            } catch (ReflectiveOperationException ignored) {
-            }
-            this.resetBoundModifiers = resetBoundModifiersMethod;
-        }
-
-        private static boolean resetAll(KeyMapping[] keyMappings) {
-            return INSTANCE.reset(keyMappings);
-        }
-
-        private boolean reset(KeyMapping[] keyMappings) {
-            if (this.resetBoundModifiers == null) {
-                return false;
-            }
-
-            boolean resetAny = false;
-            for (KeyMapping keyMapping : keyMappings) {
-                try {
-                    this.resetBoundModifiers.invoke(null, keyMapping);
-                    resetAny = true;
-                } catch (ReflectiveOperationException ignored) {
-                }
-            }
-            return resetAny;
-        }
     }
 
 }

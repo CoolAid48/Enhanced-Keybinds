@@ -7,7 +7,7 @@
   "client": [
     "controlling.ControllingKeyBindsScreenMixin",
     "controlling.ControllingKeyEntryMixin",
-    "KeyBindsListMixin",
+    "KeyBindsSearchHeaderMixin",
     "KeyBindsScreenAccessor",
     "KeyBindsScreenMixin",
     "KeyEntryAccessor"

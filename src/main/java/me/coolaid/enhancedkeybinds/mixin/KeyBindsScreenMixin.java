@@ -2,13 +2,14 @@ package me.coolaid.enhancedkeybinds.mixin;
 
 import me.coolaid.enhancedkeybinds.screen.KeyBindsFilterController;
 import me.coolaid.enhancedkeybinds.screen.KeyBindsFilterMode;
-import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.layouts.HeaderAndFooterLayout;
 import net.minecraft.client.gui.layouts.LayoutElement;
 import net.minecraft.client.gui.layouts.LinearLayout;
 import net.minecraft.client.gui.screens.options.OptionsSubScreen;
 import net.minecraft.client.gui.screens.options.controls.KeyBindsScreen;
+import net.minecraft.client.input.KeyEvent;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(KeyBindsScreen.class)
 public abstract class KeyBindsScreenMixin {
@@ -74,8 +76,15 @@ public abstract class KeyBindsScreenMixin {
         );
     }
 
-    @Inject(method = "extractRenderState", at = @At("HEAD"))
-    private void enhancedkeybinds$syncFilters(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+    @Inject(method = "keyPressed", at = @At("HEAD"), cancellable = true)
+    private void enhancedkeybinds$handleSearchShortcut(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
+        if (KeyBindsFilterController.handleSearchKeyPressed((KeyBindsScreen) (Object) this, event)) {
+            cir.setReturnValue(true);
+        }
+    }
+
+    @Inject(method = "render", at = @At("HEAD"))
+    private void enhancedkeybinds$syncFilters(GuiGraphics graphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
         KeyBindsFilterController.sync((KeyBindsScreen) (Object) this);
     }
 

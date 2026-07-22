@@ -1,40 +1,28 @@
 plugins {
-    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
+    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'me.modmuss50.mod-publish-plugin' version '2.1.1'
     id 'maven-publish'
 }
 
-version = project.version
 group = project.maven_group
 
+def modVersion = project.version
+def minecraftVersion = project.minecraft_version
+def loaderVersion = project.loader_version
+def archivesBaseName = project.archives_base_name
+def releaseVersion = modVersion.toString().split('\\+', 2)[0]
+
 base {
-    archivesName = project.archives_base_name
+    archivesName = archivesBaseName
 }
 
-
-
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
-
     maven { url = "https://maven.terraformersmc.com/releases" }
     maven { url = "https://maven.isxander.dev/releases" }
 
     maven {
-        url "https://maven.siphalor.de/"
-        name "Siphalor's Maven"
-    }
-}
-
-loom {
-    runs {
-        client {
-            vmArg "--enable-native-access=ALL-UNNAMED"
-            vmArg "--sun-misc-unsafe-memory-access=allow"
-            property "joml.nounsafe", "true"
-        }
+        url = "https://maven.siphalor.de/"
+        name = "Siphalor's Maven"
     }
 }
 
@@ -45,42 +33,35 @@ tasks.withType(JavaExec).configureEach {
 }
 
 dependencies {
-    // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
+    mappings loom.officialMojangMappings()
 
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    implementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-    implementation "com.terraformersmc:modmenu:${project.modmenu_version}"
-    implementation "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    modImplementation "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
+    modImplementation "com.terraformersmc:modmenu:${project.modmenu_version}"
 
-
-    include("de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}")
+    include "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
 }
 
 processResources {
-    inputs.property "version", project.version
-    inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
-    filteringCharset "UTF-8"
+    inputs.property "version", modVersion
+    inputs.property "minecraft_version", minecraftVersion
+    inputs.property "loader_version", loaderVersion
+    filteringCharset = "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+        expand "version": modVersion,
+                "minecraft_version": minecraftVersion,
+                "loader_version": loaderVersion
     }
 }
 
-def targetJavaVersion = 25
+def targetJavaVersion = 21
 tasks.withType(JavaCompile).configureEach {
-    // ensure that the encoding is set to UTF-8, no matter what the system default is
-    // this fixes some edge cases with special characters not displaying correctly
-    // see http://yodaconditions.net/blog/fix-for-java-file-encoding-problems-with-gradle.html
-    // If Javadoc is generated, this must be specified in that task too.
     it.options.encoding = "UTF-8"
-    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
-        it.options.release.set(targetJavaVersion)
-    }
+    it.options.release.set(targetJavaVersion)
 }
 
 java {
@@ -88,32 +69,52 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
     withSourcesJar()
 }
 
 jar {
-    from("LICENSE") {
-        rename { "${it}_${project.archives_base_name}"}
+    from("LICENSE.txt") {
+        rename { "LICENSE_${archivesBaseName}" }
+    }
+    from("CHANGELOG.md")
+}
+
+publishMods {
+    file = remapJar.archiveFile
+    changelog = providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText
+    type = STABLE
+    displayName = "Enhanced Keybinds v${releaseVersion} for ${minecraftVersion}"
+    modLoaders.add("fabric")
+    dryRun = providers.environmentVariable("PUBLISH_DRY_RUN")
+            .map { it.toBoolean() }
+            .orElse(false)
+
+    modrinth {
+        projectId = "enhanced-keybinds"
+        accessToken = providers.environmentVariable("MODRINTH_TOKEN")
+        minecraftVersions.add(minecraftVersion)
+        environment = CLIENT_ONLY
+        requires("fabric-api", "yacl")
+        embeds("amecs")
+    }
+
+    curseforge {
+        projectId = "1207805"
+        projectSlug = "enhancedkeybinds"
+        accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
+        minecraftVersions.add(minecraftVersion)
+        client = true
+        requires("fabric-api", "yacl")
+        embeds("amecs")
     }
 }
 
-// configure the maven publication
 publishing {
     publications {
         create("mavenJava", MavenPublication) {
-            artifactId = project.archives_base_name
+            artifactId = archivesBaseName
             from components.java
         }
     }
 
-    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-    repositories {
-        // Add repositories to publish to here.
-        // Notice: This block does NOT have the same function as the block in the top level.
-        // The repositories here will be used for publishing your artifact, not for
-        // retrieving dependencies.
-    }
 }

@@ -61,6 +61,7 @@
   "enhancedkeybinds.config.option.register_toggle_right_pants_keybind": "Toggle Right Leg Keybind",
   "enhancedkeybinds.config.option.register_toggle_right_pants_keybind.description": "If enabled, the Toggle Right Leg keybind is registered under Enhanced Keybinds Skin Customization.",
 
+  "enhancedkeybinds.keybind_search": "Search...",
   "enhancedkeybinds.keybind_filter.unbound": "Show Unbound Keys",
   "enhancedkeybinds.keybind_filter.conflicts": "Show Key Conflicts",
   "enhancedkeybinds.keybind_filter.active": "Show All Keys",
