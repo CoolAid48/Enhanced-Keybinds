@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.15-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
     id 'me.modmuss50.mod-publish-plugin' version '2.1.1'
     id 'maven-publish'
 }
@@ -8,9 +8,13 @@ group = project.maven_group
 
 def modVersion = project.version
 def minecraftVersion = project.minecraft_version
+def minecraftVersionRequirement = project.minecraft_version_requirement
+def minecraftVersions = project.minecraft_versions
 def loaderVersion = project.loader_version
 def archivesBaseName = project.archives_base_name
-def releaseVersion = modVersion.toString().split('\\+', 2)[0]
+def versionParts = modVersion.toString().split('\\+', 2)
+def releaseVersion = versionParts[0]
+def minecraftVersionLabel = versionParts.length > 1 ? versionParts[1] : minecraftVersion
 
 base {
     archivesName = archivesBaseName
@@ -40,13 +44,12 @@ tasks.withType(JavaExec).configureEach {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
 
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-    modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-    modImplementation "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
-    modImplementation "maven.modrinth:modmenu:${project.modmenu_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+    implementation "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
+    implementation "maven.modrinth:modmenu:${project.modmenu_version}"
 
     include "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
 }
@@ -54,17 +57,19 @@ dependencies {
 processResources {
     inputs.property "version", modVersion
     inputs.property "minecraft_version", minecraftVersion
+    inputs.property "minecraft_version_requirement", minecraftVersionRequirement
     inputs.property "loader_version", loaderVersion
     filteringCharset = "UTF-8"
 
     filesMatching("fabric.mod.json") {
         expand "version": modVersion,
                 "minecraft_version": minecraftVersion,
+                "minecraft_version_requirement": minecraftVersionRequirement,
                 "loader_version": loaderVersion
     }
 }
 
-def targetJavaVersion = 21
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = "UTF-8"
     it.options.release.set(targetJavaVersion)
@@ -86,10 +91,10 @@ jar {
 }
 
 publishMods {
-    file = remapJar.archiveFile
+    file = jar.archiveFile
     changelog = providers.fileContents(layout.projectDirectory.file("CHANGELOG.md")).asText
     type = STABLE
-    displayName = "Enhanced Keybinds v${releaseVersion} for ${minecraftVersion}"
+    displayName = "Enhanced Keybinds v${releaseVersion} for ${minecraftVersionLabel}"
     modLoaders.add("fabric")
     dryRun = providers.environmentVariable("PUBLISH_DRY_RUN")
             .map { it.toBoolean() }
@@ -98,7 +103,7 @@ publishMods {
     modrinth {
         projectId = "enhanced-keybinds"
         accessToken = providers.environmentVariable("MODRINTH_TOKEN")
-        minecraftVersions.add(minecraftVersion)
+        minecraftVersionList(minecraftVersions)
         environment = CLIENT_ONLY
         requires("fabric-api", "yacl")
         embeds("amecs")
@@ -108,7 +113,7 @@ publishMods {
         projectId = "1207805"
         projectSlug = "enhancedkeybinds"
         accessToken = providers.environmentVariable("CURSEFORGE_TOKEN")
-        minecraftVersions.add(minecraftVersion)
+        minecraftVersionList(minecraftVersions)
         client = true
         requires("fabric-api", "yacl")
         embeds("amecs")
