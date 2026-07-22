@@ -36,7 +36,7 @@ public final class ControllingAmecsCompat {
                 Object entry = eventValue(event, Object.class, "entry", "getEntry");
                 MouseButtonEvent mouseEvent = eventValue(event, MouseButtonEvent.class, "event");
                 Button changeButton = entryValue(entry, "getBtnChangeKeyBinding", Button.class);
-                if (isMouseOver(changeButton, mouseEvent)) {
+                if (changeButton.isMouseOver(mouseEvent.x(), mouseEvent.y())) {
                     entryValue(entry, "getKey", KeyMapping.class).setKey(InputConstants.UNKNOWN);
                 }
                 return false;
@@ -109,13 +109,6 @@ public final class ControllingAmecsCompat {
         Method method = entry.getClass().getMethod(methodName);
         Object value = method.invoke(entry);
         return type.cast(value);
-    }
-
-    private static boolean isMouseOver(Button button, MouseButtonEvent event) {
-        return event.x() >= button.getX()
-                && event.y() >= button.getY()
-                && event.x() < button.getX() + button.getWidth()
-                && event.y() < button.getY() + button.getHeight();
     }
 
     @FunctionalInterface

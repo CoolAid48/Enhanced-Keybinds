@@ -1,12 +1,12 @@
 # CoolAid's Enhanced Keybinds
-![](https://img.shields.io/badge/Loaders-Fabric/Quilt-blue?style=for-the-badge)
-![](https://img.shields.io/badge/Versions-1.21.11_|_26.1.x_|_26.2.x-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Loaders-Fabric-blue?style=for-the-badge)
+![](https://img.shields.io/badge/Versions-1.21.11_|_26.1_|_26.2-blue?style=for-the-badge)
 ![](https://img.shields.io/badge/Environments-Client-blue?style=for-the-badge)
 
 ### Allows you to assign modifier keys to a keybind, and adds many new keybinds from various vanilla options!
 - **Modifier Keys (Ctrl, Alt, Shift, Win) which can be combined with other keys for more keybind combinations, thanks to [Siphalor's Amecs](https://github.com/Siphalor/amecs/tree/cross-version/amecs-key-modifiers) key modifier implementation**
 - **Adds new keybinds for vanilla settings from the accessibility, skin customization, and controls menus!**
-- **Keybinds screen adds additional buttons to filter *Unbound Keys* and *Key Conflicts*, and includes a confirmation button when attempting to *Reset All Keys***
+- **Keybinds screen adds a search bar, buttons to filter *Unbound Keys* and *Key Conflicts*, and a confirmation button when attempting to *Reset All Keys***
 - **Functions completely client-side, with Mod Menu and YACL integration for configuration**
 - **All keybinds `unbound` by default, and this mod's new keybinds can be enabled or disabled entirely from the config (restart required)**
 
@@ -33,6 +33,3 @@ Probably not, but maybe. If it's requested then I'm more likely to get around to
 
 ### NeoForge support?
 Not anytime soon.
-
-## Looking for a server host?
-![server hosting partner](https://cdn.modrinth.com/data/cached_images/8e85210a65b7c17998987c57b7571ba2fbd19bfb.png)

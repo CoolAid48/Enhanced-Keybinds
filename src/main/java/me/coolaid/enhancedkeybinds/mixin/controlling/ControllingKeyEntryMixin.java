@@ -25,20 +25,14 @@ public abstract class ControllingKeyEntryMixin {
     @Inject(method = {"mouseClicked", "method_25402"}, at = @At("HEAD"), require = 0)
     private void enhancedkeybinds$syncAmecsStateBeforeClick(MouseButtonEvent event, boolean doubleClick, CallbackInfoReturnable<Boolean> cir) {
         Button changeButton = this.getBtnChangeKeyBinding();
-        if (isMouseOver(changeButton, event)) {
+        if (changeButton.isMouseOver(event.x(), event.y())) {
             this.getKey().setKey(InputConstants.UNKNOWN);
         }
 
         Button resetButton = this.getBtnResetKeyBinding();
-        if (isMouseOver(resetButton, event)) {
+        if (resetButton.isMouseOver(event.x(), event.y())) {
             AmecsKeyModifiersApi.resetBoundModifiers(this.getKey());
         }
     }
 
-    private static boolean isMouseOver(Button button, MouseButtonEvent event) {
-        return event.x() >= button.getX()
-                && event.y() >= button.getY()
-                && event.x() < button.getX() + button.getWidth()
-                && event.y() < button.getY() + button.getHeight();
-    }
 }

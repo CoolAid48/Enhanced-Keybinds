@@ -12,6 +12,8 @@ import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelPart;
 
 public final class BasicSkinLayerTogglesBinds {
+    private static final PlayerModelPart[] MODEL_PARTS = PlayerModelPart.values();
+
     private static KeyMapping toggleAllSkinLayers;
     private static KeyMapping toggleOffhand;
 
@@ -55,14 +57,14 @@ public final class BasicSkinLayerTogglesBinds {
 
     private static void toggleAllSkinLayers(Minecraft client) {
         boolean anyDisabled = false;
-        for (PlayerModelPart part : PlayerModelPart.values()) {
+        for (PlayerModelPart part : MODEL_PARTS) {
             if (!client.options.isModelPartEnabled(part)) {
                 anyDisabled = true;
                 break;
             }
         }
 
-        for (PlayerModelPart part : PlayerModelPart.values()) {
+        for (PlayerModelPart part : MODEL_PARTS) {
             client.options.setModelPart(part, anyDisabled);
         }
 

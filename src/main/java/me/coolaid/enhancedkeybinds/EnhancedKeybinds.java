@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class EnhancedKeybinds implements ClientModInitializer {
 
-    public static final String MOD_ID = "Enhanced Keybinds";
+    public static final String MOD_ID = "enhancedkeybinds";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     @Override
@@ -22,8 +22,6 @@ public class EnhancedKeybinds implements ClientModInitializer {
         IndividualSkinLayerTogglesBinds.init();
         ControllingAmecsCompat.init();
 
-        LOGGER.info("The Keybinds are Enhancing... Check out my Hardcore World on Twitch");
-        LOGGER.info("Thank you Siphalor for the Amecs key modifiers implementation!");
-        LOGGER.info("And shout out to my friends for the mod assets! :D");
+        LOGGER.info("Enhanced Keybinds initialized");
     }
 }
