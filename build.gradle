@@ -51,7 +51,6 @@ dependencies {
     implementation "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
     implementation "maven.modrinth:modmenu:${project.modmenu_version}"
 
-    include "de.siphalor.amecs.amecs-key-modifiers:${project.amecs_version}"
 }
 
 processResources {
@@ -107,7 +106,7 @@ publishMods {
         minecraftVersionList(minecraftVersions)
         environment = CLIENT_ONLY
         requires("fabric-api", "yacl")
-        embeds("amecs")
+        requires("amecs")
     }
 
     curseforge {
@@ -117,7 +116,7 @@ publishMods {
         minecraftVersionList(minecraftVersions)
         client = true
         requires("fabric-api", "yacl")
-        embeds("amecs")
+        requires("amecs")
     }
 }
 
