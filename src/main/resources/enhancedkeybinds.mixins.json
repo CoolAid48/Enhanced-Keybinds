@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "me.coolaid.enhancedkeybinds.mixin",
   "plugin": "me.coolaid.enhancedkeybinds.mixin.EnhancedKeybindsMixinPlugin",
-  "compatibilityLevel": "JAVA_25",
+  "compatibilityLevel": "JAVA_17",
   "client": [
     "controlling.ControllingKeyBindsScreenMixin",
     "controlling.ControllingKeyEntryMixin",

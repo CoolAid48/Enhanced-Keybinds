@@ -33,8 +33,7 @@
   "depends": {
     "minecraft": "${minecraft_version_requirement}",
     "fabricloader": ">=${loader_version}",
-    "fabric-api": "*",
-    "amecs_key_modifiers": ">=1.0.2"
+    "fabric-api": "*"
   },
   "custom": {
     "modmenu": {
